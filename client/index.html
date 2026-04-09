@@ -1,0 +1,80 @@
+<html> 
+
+<head>
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js" integrity="sha384-kzavj5fiMwLKzzD1f8S7TeoVIEi7uKHvbTA3ueZkrzYq75pNQUiUi6Dy98Q3fxb0" crossorigin="anonymous"></script>
+   
+</head>
+<body>
+    <input value="Poland 2012" onchange="onLeagueNameChange()" id="gameName" onload="bootstrap()">
+    <button onclick="stopLeague()">STOP</button>
+    <button onclick="startLeague()">START</button>
+
+    <ul id="games"></ul>
+</body>
+
+<script defer>
+    window.mySocket = io('ws://localhost:8080');
+
+    mySocket.on("connect_error", (err) => {
+        console.log(err.message);
+        console.log(err.description);
+        console.log(err.context);
+    });
+    console.log('Socket Connected!', window.mySocket);
+
+    let leagueName = '';
+
+
+    function subscribe(name) {
+        if(!name) {
+            return;
+        }
+
+        if(leagueName) {
+            mySocket.emit('unsubscribe', {name: leagueName});
+        }
+
+        mySocket.emit('subscribe', {name});
+        leagueName = name;
+    }
+
+    function onLeagueNameChange() {
+        const name = document.querySelector('#gameName').value;
+        subscribe(name);
+    }
+
+    function startLeague(){
+        document.querySelector('#games').innerHTML = '';
+        mySocket.emit('start', {name: leagueName});
+    }
+
+    function stopLeague(){
+        mySocket.emit('stop', {name: leagueName});
+    }
+
+    function updateGame(game) {
+            const gameListEl = document.querySelector('#games');
+            const selector = `${game.host}_${game.guest}`;
+            let gameEl = gameListEl.querySelector(`#${selector}`);
+            if(!gameEl) {
+                gameEl = document.createElement('div');
+                gameEl.setAttribute('id', selector);
+                gameListEl.append(gameEl);
+            }
+            gameEl.innerHTML = `${game.host} vs ${game.guest} ${'&nbsp;'.repeat(20)} ${game.score.host} : ${game.score.guest}`;
+    }
+
+    document.body.onload = () => {
+        leagueName = document.querySelector('#gameName').value;
+        subscribe(leagueName);
+
+        mySocket.on('score', (gameJson) => {
+            updateGame(JSON.parse(gameJson));
+        });
+
+        mySocket.on('summary', (gamesJson) => {
+            Array.from(JSON.parse(gamesJson)).forEach(game => updateGame(game));
+        });
+    }
+</script>
+</html>
