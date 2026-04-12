@@ -8,10 +8,10 @@ import {
     ConnectedSocket 
 } from "@nestjs/websockets";
 import { UseGuards } from '@nestjs/common';
-import { SimulationProvider } from "src/providers/SimulationProvider/SimulationProvider";
-import { FrequencyGuard } from "src/guards/frequency.guard";
-import { GameNameValidationPipe } from "src/pipes/gameNameValidation.pipe";
-import { Country, type Game, type League } from 'src/providers/SimulationProvider/Simulation.types';
+import { SimulationProvider } from "../providers/SimulationProvider/SimulationProvider";
+import { FrequencyGuard } from "../guards/frequency.guard";
+import { GameNameValidationPipe } from "../pipes/gameNameValidation.pipe";
+import { Country, type Game, type League } from '../providers/SimulationProvider/Simulation.types';
 import { Server, Socket } from 'socket.io';
 
 

@@ -5,9 +5,7 @@ import { WsException } from '@nestjs/websockets';
 export class FrequencyGuard implements CanActivate {
   protected requestTimestamp: number | null = null;
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean {
+  canActivate(): boolean {
     const currentTimestamp = Date.now();
 
     if(this.requestTimestamp && (currentTimestamp - this.requestTimestamp) < 5000){
